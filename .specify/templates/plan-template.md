@@ -36,11 +36,40 @@
 
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
+**Container Environment**: [Container-based dependency installation, services, build, tests and
+evaluations; reproducible commands; host/container boundary, volumes and secret handling.
+Do not install project dependencies or configure project runtimes/services on the host.]
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Use `.specify/memory/constitution.md` as the authority. Record evidence or a justified N/A for
+each gate before research and again after design. Resolve violations through a compliant design
+or an approved constitutional amendment before incompatible implementation.
+
+- **Evidence and provenance**: Source consultation and citations are traceable; unsupported or
+  conflicting evidence leads to an explicit limitation rather than invented support.
+- **Trust boundaries**: Files, web pages and retrieved/tool content cannot change instructions
+  or permissions; application/tool contracts enforce authority beyond prompts.
+- **User-controlled persistence**: Only explicitly selected web sources can be ingested. Define
+  temporary lifetime/disposal and check all stores, including history, summaries, logs, traces,
+  caches, checkpoints and embeddings, for indirect retention of unselected content.
+- **Agent contracts and deterministic ingestion**: Document responsibilities, inputs, outputs,
+  permissions and handoffs. Validation, normalization, chunking and writes use versioned code
+  rules; the application verifies source-specific user authorization before persistence.
+- **Proportional complexity and diagnostics**: Justify added components against current needs
+  and simpler alternatives; collect only diagnostic data allowed by retention and secret rules.
+- **Quality evidence**: Map acceptance criteria to relevant tests and repeatable retrieval/agent
+  evaluations where affected, including negative cases for the guarantees above.
+- **Bounded execution and failures**: Define applicable time, tool-call, agent-cycle, data-volume
+  and retry limits; distinguish partial/interrupted/completed states and protect write consistency.
+- **Container isolation**: Configure and execute the project environment in containers with
+  reproducible commands; reserve host use for editing, version control and container invocation.
+
+Carry forward current scope into the feature spec: Markdown-only local uploads and the initial
+orchestrator/researcher/tutor roles. Keep concrete technologies, thresholds and retention durations
+in the spec/plan; do not infer unapproved choices from these gates.
 
 ## Project Structure
 
@@ -105,9 +134,10 @@ directories captured above]
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+> **Fill ONLY when complexity needs justification. This table does not authorize a constitutional
+> violation; resolve such violations through design changes or an approved amendment.**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
+| Added Complexity | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

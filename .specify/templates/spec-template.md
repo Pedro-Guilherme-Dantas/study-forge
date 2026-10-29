@@ -8,6 +8,10 @@
 
 **Input**: User description: "$ARGUMENTS"
 
+**Constitution**: Apply `.specify/memory/constitution.md`. Carry forward the current scope:
+Markdown-only local uploads and orchestrator/researcher/tutor responsibilities. Record proposed
+scope changes explicitly for user review; do not turn undecided technology choices into requirements.
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -78,6 +82,10 @@
 - What happens when [boundary condition]?
 - How does system handle [error scenario]?
 
+For affected StudyForge flows, include insufficient/conflicting evidence, source consultation
+failure, instructions embedded in external content, missing persistence authorization, temporary
+content disposal, execution limits and interrupted/partial ingestion.
+
 ## Requirements *(mandatory)*
 
 <!--
@@ -103,11 +111,30 @@
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
 
+### Evidence, Trust and Data Lifecycle *(mandatory; justify non-applicable items)*
+
+- Define how the user can inspect sources supporting an answer and how insufficient or conflicting
+  evidence is communicated. References must reflect sources actually consulted.
+- Identify untrusted content inputs and the permissions they must never acquire.
+- Define explicit user selection of web sources, the material covered by authorization and the
+  observable distinction between temporary use and authorized ingestion.
+- Define temporary lifetime, disposal on success/failure/interruption and permitted metadata.
+  Cover library/index storage, embeddings, caches, history, saved answers, summaries, logs,
+  traces and checkpoints so unselected content is not retained through copies or derivatives.
+- Define observable outcomes for limits, failures, partial results and retry/recovery without
+  secret exposure or publication of incomplete ingestion as validated knowledge.
+- Link these guarantees to acceptance scenarios; use explicit clarification markers for unresolved
+  product decisions rather than silently choosing retention durations or execution limits.
+
 ## Success Criteria *(mandatory)*
 
 <!--
   ACTION REQUIRED: Define measurable success criteria.
   These must be technology-agnostic and measurable.
+  Include relevant test evidence and, for affected flows, repeatable retrieval and agent-behavior
+  evaluations. Define cases, expected outcomes and acceptance thresholds in this feature's scope.
+  Cover relevance/provenance, source fidelity, insufficient evidence, role boundaries and hostile
+  external instructions as applicable. Do not invent arbitrary coverage targets or require TDD.
 -->
 
 ### Measurable Outcomes

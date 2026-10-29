@@ -1,0 +1,2387 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "StudyForge MVP — proposed local API",
+    "version": "0.1.0",
+    "description": "Planning artifact, not implemented. Localhost only. No durable chat or unselected source content. All mutable calls require trusted Host/Origin; bootstrap is Origin-guarded, subsequent calls also require local session and CSRF."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8000"
+    }
+  ],
+  "paths": {
+    "/api/runtime": {
+      "get": {
+        "operationId": "getRuntime",
+        "summary": "Public runtime and provider disclosure",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Runtime",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeInfo"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions": {
+      "post": {
+        "operationId": "createSession",
+        "summary": "Create ephemeral local session; Host/Origin guarded",
+        "security": [],
+        "responses": {
+          "201": {
+            "description": "Session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionReceipt"
+                }
+              }
+            },
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "sf_session; HttpOnly; SameSite=Strict; Path=/"
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations": {
+      "post": {
+        "operationId": "createConversation",
+        "summary": "Create empty ephemeral conversation",
+        "security": [
+          {
+            "LocalSession": [],
+            "CsrfToken": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversation_id}": {
+      "delete": {
+        "operationId": "closeConversation",
+        "summary": "Discard entire conversation and unselected temporary sources",
+        "security": [
+          {
+            "LocalSession": [],
+            "CsrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Closed or already absent; client creates an empty conversation next"
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversation_id}/turns": {
+      "post": {
+        "operationId": "createTurn",
+        "summary": "Start supervised turn; explicit research needs no redundant confirmation",
+        "security": [
+          {
+            "LocalSession": [],
+            "CsrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Turn started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TurnRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversation_id}/turns/{turn_id}": {
+      "get": {
+        "operationId": "getTurn",
+        "summary": "Read ephemeral turn result",
+        "security": [
+          {
+            "LocalSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "turn_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Turn",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TurnResult"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Conversation/turn unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversation_id}/research-offers/{offer_id}/decision": {
+      "post": {
+        "operationId": "decideResearchOffer",
+        "summary": "Accept once or decline without any research side effect",
+        "security": [
+          {
+            "LocalSession": [],
+            "CsrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Declined or already decided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferDecision"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted; research started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferDecision"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfferRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversation_id}/research": {
+      "post": {
+        "operationId": "createResearch",
+        "summary": "Explicit research request",
+        "security": [
+          {
+            "LocalSession": [],
+            "CsrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Research started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResearchRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversation_id}/research/{research_id}": {
+      "get": {
+        "operationId": "getResearch",
+        "summary": "Read temporary research results",
+        "security": [
+          {
+            "LocalSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "research_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Research",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchResult"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversation_id}/sources/{source_id}": {
+      "get": {
+        "operationId": "getTemporarySource",
+        "summary": "Inspect captured source without refetch",
+        "security": [
+          {
+            "LocalSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Temporary snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemporarySourceDetail"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversation_id}/sources/{source_id}/selection": {
+      "post": {
+        "operationId": "selectSource",
+        "summary": "Verify explicit user selection outside model and promote exact snapshot",
+        "security": [
+          {
+            "LocalSession": [],
+            "CsrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Already accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionReceipt"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted for ingestion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionReceipt"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Snapshot mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Conversation/source expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectionRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversation_id}/citations/{citation_id}": {
+      "get": {
+        "operationId": "getCitation",
+        "summary": "Consult a citation belonging to this conversation",
+        "security": [
+          {
+            "LocalSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "citation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Citation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Citation"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/materials": {
+      "post": {
+        "operationId": "uploadMaterial",
+        "summary": "Upload only authorized Markdown; stream limits precede multipart processing",
+        "security": [
+          {
+            "LocalSession": [],
+            "CsrfToken": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionReceipt"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid Markdown",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Nonempty .md UTF-8 text; byte limit from runtime experiment."
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "listMaterials",
+        "summary": "Read persistent authorized library",
+        "security": [
+          {
+            "LocalSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Materials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterialPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/materials/{material_id}": {
+      "get": {
+        "operationId": "getMaterial",
+        "summary": "Read authorized material and versions",
+        "security": [
+          {
+            "LocalSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "material_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Material",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterialDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/materials/{material_id}/versions/{version_id}/chunks/{chunk_id}": {
+      "get": {
+        "operationId": "getLibraryChunk",
+        "summary": "Read chunk from associated READY version",
+        "security": [
+          {
+            "LocalSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "material_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "chunk_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chunk",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryChunk"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/operations/{operation_id}": {
+      "get": {
+        "operationId": "getOperation",
+        "summary": "Read authorized ingestion independent of conversation",
+        "security": [
+          {
+            "LocalSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/operations/{operation_id}/retry": {
+      "post": {
+        "operationId": "retryIngestion",
+        "summary": "Retry only authorized failed/interrupted version with no duplicate operation",
+        "security": [
+          {
+            "LocalSession": [],
+            "CsrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Retry scheduled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionReceipt"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Operation cannot be retried",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/progress": {
+      "get": {
+        "operationId": "getProgress",
+        "summary": "Read operational progress, not learning scores",
+        "security": [
+          {
+            "LocalSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Progress",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgressSnapshot"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "operationId": "liveness",
+        "summary": "Health without external research/model calls",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthInfo"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthInfo"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "readiness",
+        "summary": "Health without external research/model calls",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthInfo"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthInfo"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Sanitized error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/materials/{material_id}/versions/{version_id}/chunks": {
+      "get": {
+        "summary": "Get Library Chunks",
+        "operationId": "listLibraryChunks",
+        "parameters": [
+          {
+            "name": "material_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Material Id"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/LibraryChunk"
+                    }
+                  },
+                  "title": "Response Listlibrarychunks"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "LocalSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sf_session"
+      },
+      "CsrfToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-CSRF-Token"
+      }
+    },
+    "schemas": {
+      "ErrorEnvelope": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "stage": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "request_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "stage",
+              "retryable",
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "ProviderInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "backend": {
+            "type": "string",
+            "enum": [
+              "developer",
+              "vertex",
+              "fixture"
+            ]
+          },
+          "generation_model": {
+            "type": "string"
+          },
+          "embedding_model": {
+            "type": "string"
+          },
+          "retention_status": {
+            "type": "string",
+            "enum": [
+              "provider_managed",
+              "fixture_only"
+            ]
+          },
+          "disclosure": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "backend",
+          "generation_model",
+          "embedding_model",
+          "retention_status",
+          "disclosure"
+        ]
+      },
+      "RuntimeInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "server_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "access": {
+            "type": "string",
+            "enum": [
+              "localhost_only"
+            ]
+          },
+          "provider": {
+            "$ref": "#/components/schemas/ProviderInfo"
+          },
+          "temporary_lifetime": {
+            "type": "string",
+            "enum": [
+              "conversation_close_or_app_restart"
+            ]
+          },
+          "chat_history": {
+            "type": "string",
+            "enum": [
+              "memory_only"
+            ]
+          },
+          "limits": {
+            "$ref": "#/components/schemas/ExperimentLimits"
+          }
+        },
+        "required": [
+          "server_instance_id",
+          "access",
+          "provider",
+          "temporary_lifetime",
+          "chat_history",
+          "limits"
+        ]
+      },
+      "SessionReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "server_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "csrf_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "server_instance_id",
+          "csrf_token"
+        ]
+      },
+      "ConversationReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "server_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "epoch": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "open"
+            ]
+          }
+        },
+        "required": [
+          "conversation_id",
+          "server_instance_id",
+          "epoch",
+          "state"
+        ]
+      },
+      "TurnRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Byte budget is enforced before parsing; runtime limits are experimental."
+          },
+          "intent": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "research"
+            ],
+            "default": "auto"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "TurnReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "turn_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running"
+            ]
+          }
+        },
+        "required": [
+          "turn_id",
+          "status"
+        ]
+      },
+      "ResearchOffer": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "offer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "turn_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason_code": {
+            "type": "string",
+            "enum": [
+              "KB_INSUFFICIENT"
+            ]
+          },
+          "topic": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "awaiting",
+              "accepted",
+              "declined"
+            ]
+          }
+        },
+        "required": [
+          "offer_id",
+          "turn_id",
+          "reason_code",
+          "topic",
+          "state"
+        ]
+      },
+      "Locator": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "markdown_original",
+              "html_extracted_snapshot"
+            ]
+          },
+          "section_path": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "start_char": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_char": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "start_line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "end_line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "offset_unit": {
+            "type": "string",
+            "enum": [
+              "unicode_code_point"
+            ]
+          },
+          "block_index": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "kind",
+          "section_path",
+          "start_char",
+          "end_char",
+          "start_line",
+          "end_line",
+          "offset_unit"
+        ]
+      },
+      "LibraryCitation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "citation_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "locator": {
+            "$ref": "#/components/schemas/Locator"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "library"
+            ]
+          },
+          "material_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "chunk_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "citation_id",
+          "title",
+          "quote",
+          "locator",
+          "scope",
+          "material_id",
+          "version_id",
+          "chunk_id"
+        ]
+      },
+      "TemporaryCitation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "citation_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "locator": {
+            "$ref": "#/components/schemas/Locator"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "temporary"
+            ]
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "snapshot_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "origin_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "citation_id",
+          "title",
+          "quote",
+          "locator",
+          "scope",
+          "source_id",
+          "snapshot_hash",
+          "origin_url"
+        ]
+      },
+      "Citation": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/LibraryCitation"
+          },
+          {
+            "$ref": "#/components/schemas/TemporaryCitation"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "scope",
+          "mapping": {
+            "library": "#/components/schemas/LibraryCitation",
+            "temporary": "#/components/schemas/TemporaryCitation"
+          }
+        }
+      },
+      "TurnResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "turn_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "awaiting_research_consent",
+              "complete",
+              "partial",
+              "insufficient",
+              "failed"
+            ]
+          },
+          "answer_markdown": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "supported",
+                  "partial",
+                  "insufficient",
+                  "conflicting"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            }
+          },
+          "research_offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResearchOffer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "research_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorEnvelope"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "turn_id",
+          "status",
+          "answer_markdown",
+          "evidence_status",
+          "citations",
+          "research_offer",
+          "research_id",
+          "error"
+        ]
+      },
+      "ResearchRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "topic": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "topic"
+        ]
+      },
+      "ResearchReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "research_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running"
+            ]
+          }
+        },
+        "required": [
+          "research_id",
+          "status"
+        ]
+      },
+      "OfferRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accept": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "accept"
+        ]
+      },
+      "OfferDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "offer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "declined"
+            ]
+          },
+          "research_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "offer_id",
+          "state",
+          "research_id"
+        ]
+      },
+      "SourceSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "origin_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "available",
+              "unavailable"
+            ]
+          },
+          "snapshot_hash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "obtained_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "source_id",
+          "title",
+          "origin_url",
+          "state",
+          "snapshot_hash",
+          "obtained_at",
+          "preview",
+          "error_code"
+        ]
+      },
+      "ResearchResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "research_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "succeeded",
+              "partial",
+              "empty",
+              "failed",
+              "interrupted"
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SourceSummary"
+            }
+          },
+          "error_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "research_id",
+          "status",
+          "sources",
+          "error_codes"
+        ]
+      },
+      "TemporarySourceDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "$ref": "#/components/schemas/SourceSummary"
+          },
+          "snapshot_text": {
+            "type": "string"
+          },
+          "locator_kind": {
+            "type": "string",
+            "enum": [
+              "html_extracted_snapshot"
+            ]
+          },
+          "pipeline_fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "temporary": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "source",
+          "snapshot_text",
+          "locator_kind",
+          "pipeline_fingerprint",
+          "temporary"
+        ]
+      },
+      "SelectionRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "snapshot_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "snapshot_hash"
+        ]
+      },
+      "PromotionReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "material_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selection_status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "already_accepted"
+            ]
+          }
+        },
+        "required": [
+          "material_id",
+          "version_id",
+          "operation_id",
+          "selection_status"
+        ]
+      },
+      "MaterialSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "material_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "markdown_upload",
+              "selected_web"
+            ]
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processing",
+              "ready",
+              "failed",
+              "interrupted"
+            ]
+          },
+          "active_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "material_id",
+          "source_kind",
+          "display_name",
+          "status",
+          "active_version_id"
+        ]
+      },
+      "MaterialPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MaterialSummary"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ]
+      },
+      "VersionSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "processing",
+              "ready",
+              "failed",
+              "interrupted"
+            ]
+          },
+          "input_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "pipeline_fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "embedding_profile_id": {
+            "type": "string"
+          },
+          "obtained_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "version_id",
+          "state",
+          "input_sha256",
+          "pipeline_fingerprint",
+          "embedding_profile_id",
+          "obtained_at",
+          "selected_at"
+        ]
+      },
+      "MaterialDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "material": {
+            "$ref": "#/components/schemas/MaterialSummary"
+          },
+          "origin_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VersionSummary"
+            }
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "material",
+          "origin_url",
+          "versions",
+          "operation_id"
+        ]
+      },
+      "LibraryChunk": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "material_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "chunk_id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "locator": {
+            "$ref": "#/components/schemas/Locator"
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "markdown_upload",
+              "selected_web"
+            ]
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "origin_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "material_id",
+          "version_id",
+          "chunk_id",
+          "text",
+          "locator",
+          "source_kind",
+          "display_name",
+          "origin_url"
+        ]
+      },
+      "IngestionReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "material_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "succeeded",
+              "failed",
+              "interrupted"
+            ]
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "validate",
+              "normalize",
+              "chunk",
+              "embed",
+              "publish"
+            ]
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "operation_id",
+          "material_id",
+          "version_id",
+          "state",
+          "stage",
+          "attempt",
+          "error_code"
+        ]
+      },
+      "ResearchSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "research_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "succeeded",
+              "partial",
+              "empty",
+              "failed",
+              "interrupted"
+            ]
+          }
+        },
+        "required": [
+          "research_id",
+          "status"
+        ]
+      },
+      "ProgressSnapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "materials": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MaterialSummary"
+            }
+          },
+          "ingestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IngestionReceipt"
+            }
+          },
+          "research": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchSummary"
+            }
+          }
+        },
+        "required": [
+          "materials",
+          "ingestions",
+          "research"
+        ]
+      },
+      "HealthInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "not_ready"
+            ]
+          },
+          "database_ready": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "database_ready"
+        ]
+      },
+      "ExperimentLimits": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "max_upload_bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "max_html_bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "max_pages_per_research": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "max_temporary_sources": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "max_message_bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "max_graph_steps": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "max_external_attempts": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "embedding_dimensions": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "retrieval_top_k": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "max_upload_bytes",
+          "max_html_bytes",
+          "max_pages_per_research",
+          "max_temporary_sources",
+          "max_message_bytes",
+          "max_graph_steps",
+          "max_external_attempts",
+          "embedding_dimensions",
+          "retrieval_top_k"
+        ]
+      }
+    }
+  }
+}

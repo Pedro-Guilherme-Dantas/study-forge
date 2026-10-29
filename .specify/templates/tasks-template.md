@@ -9,9 +9,19 @@ description: "Task list template for feature implementation"
 
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: Include relevant tests required by the constitution and feature acceptance criteria.
+For affected flows, include repeatable retrieval and agent-behavior evaluations. Choose test types
+by risk and contract; the sample contract/integration tests below are illustrative, not mandatory
+for every change. The constitution does not require TDD or arbitrary coverage targets.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+
+**Constitution-driven work**: Place source traceability, trust boundaries, user authorization,
+deterministic ingestion, retention/disposal, execution limits and failure handling in the stories
+that need them. Verify indirect retention across history, summaries, logs, traces, caches,
+checkpoints and embeddings. Do not defer these guarantees entirely to final polish. Include
+diagnostics only as needed and justify added complexity. Environment setup, dependency installation,
+services, builds, tests and evaluations must use containers with reproducible commands.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -50,7 +60,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize [language] project with [framework] dependencies
+- [ ] T002 Initialize [language] project with [framework] dependencies inside the planned container environment
 - [ ] T003 [P] Configure linting and formatting tools
 
 ---
@@ -80,9 +90,10 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests and Evaluations for User Story 1 (select by acceptance criteria and risk)
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE: Include the relevant tests/evaluations and run them in containers; record outcomes.
+> Test-first ordering is optional unless the feature plan explicitly adopts it.**
 
 - [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
 - [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
@@ -106,7 +117,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+### Tests and Evaluations for User Story 2 (select by acceptance criteria and risk)
 
 - [ ] T018 [P] [US2] Contract test for [endpoint] in tests/contract/test_[name].py
 - [ ] T019 [P] [US2] Integration test for [user journey] in tests/integration/test_[name].py
@@ -128,7 +139,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+### Tests and Evaluations for User Story 3 (select by acceptance criteria and risk)
 
 - [ ] T024 [P] [US3] Contract test for [endpoint] in tests/contract/test_[name].py
 - [ ] T025 [P] [US3] Integration test for [user journey] in tests/integration/test_[name].py
@@ -154,9 +165,9 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Documentation updates in docs/
 - [ ] TXXX Code cleanup and refactoring
 - [ ] TXXX Performance optimization across all stories
-- [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
-- [ ] TXXX Security hardening
-- [ ] TXXX Run quickstart.md validation
+- [ ] TXXX [P] Additional unit tests justified by remaining risks in tests/unit/
+- [ ] TXXX Review residual security risks after story-level controls are verified
+- [ ] TXXX Run quickstart.md validation with the documented container commands
 
 ---
 
@@ -179,7 +190,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Within Each User Story
 
-- Tests (if included) MUST be written and FAIL before implementation
+- Map relevant tests/evaluations to acceptance criteria and risks; follow test-first ordering only if adopted in the plan
 - Models before services
 - Services before endpoints
 - Core implementation before integration
@@ -199,7 +210,7 @@ Examples of foundational tasks (adjust based on your project):
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together (if tests requested):
+# Launch applicable independent tests for User Story 1 in the planned containers:
 Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
 Task: "Integration test for [user journey] in tests/integration/test_[name].py"
 
@@ -246,7 +257,7 @@ With multiple developers:
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
-- Verify tests fail before implementing
+- Record relevant test/evaluation results; report checks not run and remaining risks
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
