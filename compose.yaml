@@ -1,0 +1,53 @@
+name: studyforge
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg18-bookworm@sha256:2358fcba361ed2233a5ed81b5fe4ca779ccb304120ce531a3bf51c0ed7e2bc11
+    environment:
+      POSTGRES_USER: studyforge
+      POSTGRES_PASSWORD: studyforge-local
+      POSTGRES_DB: studyforge
+    volumes:
+      - library:/var/lib/postgresql
+      - ./backend/db-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studyforge -d studyforge"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    security_opt: ["no-new-privileges:true"]
+    logging:
+      driver: none
+  app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports: ["127.0.0.1:8000:8000"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://studyforge_runtime:studyforge-runtime-local@db:5432/studyforge
+      APP_MODE: ${APP_MODE:-fixture}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_BACKEND: ${GEMINI_BACKEND:-developer}
+      GEMINI_PROJECT: ${GEMINI_PROJECT:-}
+      GEMINI_LOCATION: ${GEMINI_LOCATION:-}
+      SEARCH_API_KEY: ${SEARCH_API_KEY:-}
+      GEMINI_GENERATION_MODEL: ${GEMINI_GENERATION_MODEL:-gemini-3.5-flash-lite}
+      GEMINI_EMBEDDING_MODEL: ${GEMINI_EMBEDDING_MODEL:-gemini-embedding-001}
+      EMBEDDING_BATCH_SIZE: ${EMBEDDING_BATCH_SIZE:-32}
+      LANGSMITH_TRACING: "false"
+      LANGCHAIN_TRACING_V2: "false"
+    depends_on:
+      db: {condition: service_healthy}
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=32m"]
+    ulimits:
+      core: {soft: 0, hard: 0}
+    security_opt: ["no-new-privileges:true"]
+    logging:
+      driver: none
+  web-dev:
+    profiles: ["dev"]
+    build: {context: ., dockerfile: frontend/Dockerfile}
+    ports: ["127.0.0.1:5173:5173"]
+    depends_on: [app]
+volumes:
+  library:

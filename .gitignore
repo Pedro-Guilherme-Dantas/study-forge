@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+**/node_modules/
+**/dist/
+**/__pycache__/
+**/.pytest_cache/
+**/.venv/
+**/*.egg-info/
+**/.coverage
+**/htmlcov/
+**/*.log
+**/test-artifacts/
+backend/evals/.cache/
+.DS_Store
+Thumbs.db
