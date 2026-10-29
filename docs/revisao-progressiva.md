@@ -22,7 +22,7 @@ o conjunto versionado completo. Nenhum push é necessário para organizar o hist
 | 1 | Constituição, especificação e contratos | Revisados princípios, escopo, retenção e consentimento. Corrigidas referências remanescentes ao gate externo já retirado. |
 | 2 | Contêineres, dependências, modelos e migrações | Build/typecheck e 3 testes aprovados. Inclui upgrade → downgrade → upgrade em schema isolado. Regex declarado como dependência direta na versão já travada. |
 | 3 | Pipeline textual, biblioteca e publicação | 33 testes aprovados em 4,25 s; rastreabilidade, Unicode, publicação atômica, retry, limites e regressões dos consumidores. Helper de biblioteca centralizado em tests/support.py. |
-| 4 | Recuperação, tutor, pesquisa e provedores | Pendente nesta revisão. |
+| 4 | Recuperação, tutor, pesquisa e provedores | 67 testes aprovados em 4,13 s; papéis, consentimento, schema/citações, retentativas, SSRF e recuperação por perfil/versão. Sem chamadas externas nesta revisão. |
 | 5 | Seleção, API, sessão e proteção dos fluxos | Pendente nesta revisão. |
 | 6 | Interface e cliente HTTP | Pendente nesta revisão. |
 | 7 | Avaliações, evidências e verificação integrada | Pendente nesta revisão. |
@@ -48,3 +48,8 @@ Falhas, correções e limites encontrados na revisão devem ser acrescentados aq
 - **Testes:** preparação compartilhada de biblioteca foi extraída para
   tests/support.py, eliminando importação de test_ingestion_publication para obter
   um helper. Fixtures continuam em tests/fixtures/, separadas do corpus de avaliação.
+- **Agentes e integrações:** agents/ organiza os papéis e o grafo; providers/
+  encapsula os SDKs. retrieval.py e citations.py são serviços pequenos compartilhados,
+  sem justificar camadas adicionais. web_fetch.py é a fronteira específica de rede
+  não confiável; mantê-la explícita é preferível a escondê-la dentro de um agente.
+  Nenhum desses módulos expõe uma ferramenta de persistência ao modelo.
