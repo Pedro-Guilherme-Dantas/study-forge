@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import create_app
 from app.settings import Settings
-from tests.contract.test_materials import headers, wait_for_operation
+from tests.support import headers, wait_for_operation
 
 
 @pytest.mark.integration

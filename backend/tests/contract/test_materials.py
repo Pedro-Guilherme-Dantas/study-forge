@@ -1,26 +1,8 @@
-import time
 import pytest
 from fastapi.testclient import TestClient
 from app.main import create_app
 from app.settings import Settings
-
-
-def headers(client):
-    value = client.post(
-        "/api/sessions", headers={"Origin": "http://127.0.0.1:8000"}
-    ).json()
-    return {"Origin": "http://127.0.0.1:8000", "X-CSRF-Token": value["csrf_token"]}
-
-
-def wait_for_operation(client, operation_id):
-    for _ in range(100):
-        result = client.get("/api/operations/" + operation_id)
-        assert result.status_code == 200, result.text
-        value = result.json()
-        if value["state"] not in ("queued", "running"):
-            return value
-        time.sleep(0.03)
-    pytest.fail("Ingestion did not reach a terminal state")
+from tests.support import headers, wait_for_operation
 
 
 @pytest.mark.contract

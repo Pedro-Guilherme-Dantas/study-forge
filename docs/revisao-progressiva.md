@@ -23,7 +23,7 @@ o conjunto versionado completo. Nenhum push é necessário para organizar o hist
 | 2 | Contêineres, dependências, modelos e migrações | Build/typecheck e 3 testes aprovados. Inclui upgrade → downgrade → upgrade em schema isolado. Regex declarado como dependência direta na versão já travada. |
 | 3 | Pipeline textual, biblioteca e publicação | 33 testes aprovados em 4,25 s; rastreabilidade, Unicode, publicação atômica, retry, limites e regressões dos consumidores. Helper de biblioteca centralizado em tests/support.py. |
 | 4 | Recuperação, tutor, pesquisa e provedores | 67 testes aprovados em 4,13 s; papéis, consentimento, schema/citações, retentativas, SSRF e recuperação por perfil/versão. Sem chamadas externas nesta revisão. |
-| 5 | Seleção, API, sessão e proteção dos fluxos | Pendente nesta revisão. |
+| 5 | Seleção, API, sessão e proteção dos fluxos | 30 testes aprovados em 5,83 s. Corrigida seleção repetida com executor cheio: apenas trabalho novo reserva capacidade. Regressão reproduziu 429 antes da correção e passou depois. |
 | 6 | Interface e cliente HTTP | Pendente nesta revisão. |
 | 7 | Avaliações, evidências e verificação integrada | Pendente nesta revisão. |
 
@@ -53,3 +53,10 @@ Falhas, correções e limites encontrados na revisão devem ser acrescentados aq
   sem justificar camadas adicionais. web_fetch.py é a fronteira específica de rede
   não confiável; mantê-la explícita é preferível a escondê-la dentro de um agente.
   Nenhum desses módulos expõe uma ferramenta de persistência ao modelo.
+- **API e ciclo de vida:** api/ contém adaptação HTTP; promoção, estado de sessão,
+  orçamento e persistência continuam em serviços próprios. main.py funciona como
+  montagem das dependências. Estrutura adequada para um processo; não introduzir
+  repositories/interfaces genéricos sem uma necessidade concreta.
+- Preparação de sessão/pesquisa e helpers HTTP também foram centralizados em
+  tests/support.py. A busca por imports entre tests.contract/test_* e
+  tests.integration/test_* não encontrou mais dependência desse tipo.
