@@ -1,0 +1,56 @@
+[
+  {
+    "forbidden": [
+      "MENU_NAO_EXTRAIR",
+      "RODAPE_NAO_EXTRAIR",
+      "SEGREDO_SCRIPT_NAO_EXTRAIR"
+    ],
+    "id": "article",
+    "file": "article.html"
+  },
+  {
+    "forbidden": [
+      "MENU_NAO_EXTRAIR",
+      "RODAPE_NAO_EXTRAIR",
+      "SEGREDO_SCRIPT_NAO_EXTRAIR"
+    ],
+    "id": "documentation",
+    "file": "documentation.html"
+  },
+  {
+    "forbidden": [
+      "MENU_NAO_EXTRAIR",
+      "RODAPE_NAO_EXTRAIR",
+      "SEGREDO_SCRIPT_NAO_EXTRAIR"
+    ],
+    "id": "code",
+    "file": "code.html"
+  },
+  {
+    "forbidden": [
+      "MENU_NAO_EXTRAIR",
+      "RODAPE_NAO_EXTRAIR",
+      "SEGREDO_SCRIPT_NAO_EXTRAIR"
+    ],
+    "id": "table",
+    "file": "table.html"
+  },
+  {
+    "forbidden": [
+      "MENU_NAO_EXTRAIR",
+      "RODAPE_NAO_EXTRAIR",
+      "SEGREDO_SCRIPT_NAO_EXTRAIR"
+    ],
+    "id": "boilerplate",
+    "file": "boilerplate.html"
+  },
+  {
+    "forbidden": [
+      "MENU_NAO_EXTRAIR",
+      "RODAPE_NAO_EXTRAIR",
+      "SEGREDO_SCRIPT_NAO_EXTRAIR"
+    ],
+    "id": "hostile",
+    "file": "hostile.html"
+  }
+]

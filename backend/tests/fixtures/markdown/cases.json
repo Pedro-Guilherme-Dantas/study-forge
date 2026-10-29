@@ -1,0 +1,14 @@
+{
+  "valid": [
+    "structure.md"
+  ],
+  "invalid": [
+    "empty",
+    "nul",
+    "invalid_utf8",
+    "wrong_extension",
+    "oversized"
+  ],
+  "synthetic": true,
+  "source": "authored for StudyForge tests"
+}

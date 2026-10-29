@@ -21,7 +21,7 @@ o conjunto versionado completo. Nenhum push é necessário para organizar o hist
 | 0 | Guia de arquitetura e fluxos | Criado e revisado contra o código; commit d25523f. |
 | 1 | Constituição, especificação e contratos | Revisados princípios, escopo, retenção e consentimento. Corrigidas referências remanescentes ao gate externo já retirado. |
 | 2 | Contêineres, dependências, modelos e migrações | Build/typecheck e 3 testes aprovados. Inclui upgrade → downgrade → upgrade em schema isolado. Regex declarado como dependência direta na versão já travada. |
-| 3 | Pipeline textual, biblioteca e publicação | Pendente nesta revisão. |
+| 3 | Pipeline textual, biblioteca e publicação | 33 testes aprovados em 4,25 s; rastreabilidade, Unicode, publicação atômica, retry, limites e regressões dos consumidores. Helper de biblioteca centralizado em tests/support.py. |
 | 4 | Recuperação, tutor, pesquisa e provedores | Pendente nesta revisão. |
 | 5 | Seleção, API, sessão e proteção dos fluxos | Pendente nesta revisão. |
 | 6 | Interface e cliente HTTP | Pendente nesta revisão. |
@@ -41,3 +41,10 @@ Falhas, correções e limites encontrados na revisão devem ser acrescentados aq
 - .env, caches, node_modules, dist e bytecode foram verificados como ignorados.
 - A validação de migrações inicializa alembic_version no schema de ensaio para não
   confundir a biblioteca pública já migrada com um schema vazio pelo search_path.
+- **Pipeline:** ingestion/ separa validação, normalização, chunking, extração,
+  serviço de publicação e promoção. A separação é proporcional; não há necessidade
+  demonstrada de criar pacotes ou serviços adicionais. Modelos permanecem em db/,
+  sem misturar transformação textual e controle de sessão.
+- **Testes:** preparação compartilhada de biblioteca foi extraída para
+  tests/support.py, eliminando importação de test_ingestion_publication para obter
+  um helper. Fixtures continuam em tests/fixtures/, separadas do corpus de avaliação.
