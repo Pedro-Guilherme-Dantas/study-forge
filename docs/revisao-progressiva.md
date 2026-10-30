@@ -25,7 +25,7 @@ o conjunto versionado completo. Nenhum push é necessário para organizar o hist
 | 4 | Recuperação, tutor, pesquisa e provedores | 67 testes aprovados em 4,13 s; papéis, consentimento, schema/citações, retentativas, SSRF e recuperação por perfil/versão. Sem chamadas externas nesta revisão. |
 | 5 | Seleção, API, sessão e proteção dos fluxos | 30 testes aprovados em 5,83 s. Corrigida seleção repetida com executor cheio: apenas trabalho novo reserva capacidade. Regressão reproduziu 429 antes da correção e passou depois. |
 | 6 | Interface e cliente HTTP | Build/typecheck e 6 testes do cliente aprovados. Corrigidas respostas tardias após reset/fechamento e reativação de sessão antiga; não há replay automático. Removido fallback de navegação inalcançável. |
-| 7 | Avaliações, evidências e verificação integrada | Pendente nesta revisão. |
+| 7 | Avaliações, evidências e verificação integrada | 125 testes backend aprovados, 2 externos opt-in separados; 6 testes do cliente, build/typecheck e runner de 12 casos/17 asserts aprovados. Default da avaliação usa somente o modelo configurado. |
 
 Tarefas ainda abertas em tasks.md não serão encerradas por criar um commit.
 Falhas, correções e limites encontrados na revisão devem ser acrescentados aqui.
@@ -69,6 +69,20 @@ Falhas, correções e limites encontrados na revisão devem ser acrescentados aq
   concentra sessão/transporte e types.ts define contratos. Estrutura adequada sem
   criar store global ou camada extra. O CSS centralizado é aceitável neste MVP;
   só deve ser dividido quando os estilos passarem a dificultar mudanças concretas.
+- **Avaliações e evidências:** evals/ mantém scripts, corpus licenciado, rótulos e
+  resultados fora de app/. O harness visual também fica fora do runtime e exige
+  ativação explícita. Evidências e capturas pertencem a specs/.../evidence/, não
+  ao banco da aplicação. Caches de vetores de avaliação permanecem fora do Git e
+  da imagem. Referências históricas contraditórias foram identificadas como tal.
+  Espaços existentes nos snapshots licenciados foram preservados: removê-los
+  alteraria hashes e offsets do corpus. A exceção de whitespace do Git é restrita
+  a esses dados de avaliação, sem relaxar a verificação do código.
+
+**Conclusão estrutural:** a organização está adequada ao tamanho e ao desenho
+atual do MVP. Não há necessidade demonstrada de novas camadas, microserviços ou
+divisão de pacotes. A correção necessária foi concentrar helpers de testes em
+support.py e explicitar dependências. Isso não atesta conclusão de todos os
+critérios de produto; as pendências de tasks.md continuam independentes.
 
 ## Correções reproduzidas
 
@@ -80,3 +94,18 @@ Falhas, correções e limites encontrados na revisão devem ser acrescentados aq
    preservando a sessão válida quando apenas a conversa foi encerrada.
 3. Manifesto não declarava regex como dependência direta, apesar de importar a
    biblioteca. Mantida a versão exata já presente no lock, sem trocar modelos/SDKs.
+4. Avaliação de geração incluía um segundo modelo por padrão. Agora usa somente
+   o modelo configurado; alternativas exigem argumento explícito e não são fallback
+   automático. Teste sem rede verifica essa regra.
+
+## Validação integrada e pendências
+
+Os comandos de build e testes foram executados em contêineres. A rodada desta
+revisão não repetiu chamadas pagas Gemini/Brave e não afirma resolver a cota que
+interrompeu a comparação de retrieval. O upload visual continua não executado
+por bloqueio da ferramenta, conforme o relatório de ensaio anterior. Nenhum desses
+itens foi marcado como concluído apenas para fechar o histórico.
+
+As configurações/skills Git já instaladas foram versionadas em commit próprio,
+sem alterar seu comportamento. Não foi feito push. O histórico Git permite
+consultar os hashes da sequência; o commit inicial foi preservado.

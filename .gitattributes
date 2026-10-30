@@ -4,3 +4,5 @@
 *.jpg -text
 *.jpeg -text
 *.pdf -text
+# Evaluation snapshots retain source whitespace; hashes and labeled offsets depend on it.
+backend/evals/corpus/** whitespace=-blank-at-eol

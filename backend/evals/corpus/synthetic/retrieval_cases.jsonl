@@ -1,0 +1,12 @@
+{"question":"O que é uma célula?","unanswerable":false,"id":"q-celula","relevant_documents":["celula"]}
+{"question":"O que transforma a fotossíntese?","unanswerable":false,"id":"q-fotossintese","relevant_documents":["fotossintese"]}
+{"question":"O que produz a mitose?","unanswerable":false,"id":"q-mitose","relevant_documents":["mitose"]}
+{"question":"Como a gravidade relaciona corpos com massa?","unanswerable":false,"id":"q-gravidade","relevant_documents":["gravidade"]}
+{"question":"O que significa inércia?","unanswerable":false,"id":"q-inercia","relevant_documents":["inercia"]}
+{"question":"O que ocorre com a energia em sistema isolado?","unanswerable":false,"id":"q-energia","relevant_documents":["energia"]}
+{"question":"O denominador de uma fração pode ser zero?","unanswerable":false,"id":"q-fracao","relevant_documents":["fracao"]}
+{"question":"Como reconhecer número primo?","unanswerable":false,"id":"q-primo","relevant_documents":["primo"]}
+{"question":"Como calcular a média aritmética?","unanswerable":false,"id":"q-media","relevant_documents":["media"]}
+{"question":"O que descreve um algoritmo?","unanswerable":false,"id":"q-algoritmo","relevant_documents":["algoritmo"]}
+{"question":"O que garante uma transação atômica?","unanswerable":false,"id":"q-transacao","relevant_documents":["transacao"]}
+{"question":"Como funciona a tectônica de placas?","unanswerable":true,"id":"q-evidencia","relevant_documents":[]}

@@ -1,0 +1,101 @@
+{
+  "documents": [
+    {
+      "file": "celula.md",
+      "id": "celula",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Célula"
+    },
+    {
+      "file": "fotossintese.md",
+      "id": "fotossintese",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Fotossíntese"
+    },
+    {
+      "file": "mitose.md",
+      "id": "mitose",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Mitose"
+    },
+    {
+      "file": "gravidade.md",
+      "id": "gravidade",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Gravidade"
+    },
+    {
+      "file": "inercia.md",
+      "id": "inercia",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Inércia"
+    },
+    {
+      "file": "energia.md",
+      "id": "energia",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Energia"
+    },
+    {
+      "file": "fracao.md",
+      "id": "fracao",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Fração"
+    },
+    {
+      "file": "primo.md",
+      "id": "primo",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Número primo"
+    },
+    {
+      "file": "media.md",
+      "id": "media",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Média"
+    },
+    {
+      "file": "algoritmo.md",
+      "id": "algoritmo",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Algoritmo"
+    },
+    {
+      "file": "transacao.md",
+      "id": "transacao",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Transação"
+    },
+    {
+      "file": "evidencia.md",
+      "id": "evidencia",
+      "relevant_lines": [
+        3
+      ],
+      "title": "Evidência"
+    }
+  ],
+  "provenance": "Material sintético próprio para avaliação local; não comprova desempenho do Gemini."
+}
