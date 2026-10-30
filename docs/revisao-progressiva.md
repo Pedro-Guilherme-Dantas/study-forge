@@ -24,7 +24,7 @@ o conjunto versionado completo. Nenhum push é necessário para organizar o hist
 | 3 | Pipeline textual, biblioteca e publicação | 33 testes aprovados em 4,25 s; rastreabilidade, Unicode, publicação atômica, retry, limites e regressões dos consumidores. Helper de biblioteca centralizado em tests/support.py. |
 | 4 | Recuperação, tutor, pesquisa e provedores | 67 testes aprovados em 4,13 s; papéis, consentimento, schema/citações, retentativas, SSRF e recuperação por perfil/versão. Sem chamadas externas nesta revisão. |
 | 5 | Seleção, API, sessão e proteção dos fluxos | 30 testes aprovados em 5,83 s. Corrigida seleção repetida com executor cheio: apenas trabalho novo reserva capacidade. Regressão reproduziu 429 antes da correção e passou depois. |
-| 6 | Interface e cliente HTTP | Pendente nesta revisão. |
+| 6 | Interface e cliente HTTP | Build/typecheck e 6 testes do cliente aprovados. Corrigidas respostas tardias após reset/fechamento e reativação de sessão antiga; não há replay automático. Removido fallback de navegação inalcançável. |
 | 7 | Avaliações, evidências e verificação integrada | Pendente nesta revisão. |
 
 Tarefas ainda abertas em tasks.md não serão encerradas por criar um commit.
@@ -60,3 +60,19 @@ Falhas, correções e limites encontrados na revisão devem ser acrescentados aq
 - Preparação de sessão/pesquisa e helpers HTTP também foram centralizados em
   tests/support.py. A busca por imports entre tests.contract/test_* e
   tests.integration/test_* não encontrou mais dependência desse tipo.
+- **Frontend:** pages/ organiza os quatro destinos; components/ guarda elementos
+  reutilizados e responsabilidades como Markdown seguro, citações e modal. api.ts
+  concentra sessão/transporte e types.ts define contratos. Estrutura adequada sem
+  criar store global ou camada extra. O CSS centralizado é aceitável neste MVP;
+  só deve ser dividido quando os estilos passarem a dificultar mudanças concretas.
+
+## Correções reproduzidas
+
+1. Seleção repetida com executor cheio retornava 429. Teste falhou antes da mudança;
+   agora reaproveita o recibo sem reservar capacidade e continua recusando trabalho novo.
+2. Resposta antiga de criação de sessão podia substituir uma sessão nova após reset.
+   Teste do cliente reproduziu a aceitação indevida; geração de contexto impede isso.
+   Respostas de fonte atrasadas também são recusadas após reset ou fechamento,
+   preservando a sessão válida quando apenas a conversa foi encerrada.
+3. Manifesto não declarava regex como dependência direta, apesar de importar a
+   biblioteca. Mantida a versão exata já presente no lock, sem trocar modelos/SDKs.
