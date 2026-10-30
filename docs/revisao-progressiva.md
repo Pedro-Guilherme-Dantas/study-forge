@@ -34,6 +34,10 @@ Falhas, correções e limites encontrados na revisão devem ser acrescentados aq
 
 - **Documentação:** docs/ explica; specs/ contém requisitos, contratos e evidências;
   .specify/ e .agents/ contêm ferramentas do fluxo de desenvolvimento. Separação adequada.
+  A configuração instalada do Spec Kit/Git foi preservada; auto-commit continua
+  desativado. Os commits desta revisão usam seleção explícita, sem executar hooks
+  que adicionariam todas as alterações automaticamente. .gitattributes fixa LF
+  para fontes/textos e mantém capturas binárias sem conversão.
 - **Infraestrutura e dados:** Compose na raiz, Dockerfiles junto de cada aplicação,
   migrações fora de app/db/ e contratos fora do código. Adequado ao monólito e sem
   serviços extras. Manifests/locks pertencem a seus runtimes; regex não depende

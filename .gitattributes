@@ -1,0 +1,6 @@
+# Stable source/corpus line endings across Windows checkouts and Linux containers.
+* text=auto eol=lf
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.pdf -text
