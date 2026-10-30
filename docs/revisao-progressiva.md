@@ -109,3 +109,33 @@ itens foi marcado como concluído apenas para fechar o histórico.
 As configurações/skills Git já instaladas foram versionadas em commit próprio,
 sem alterar seu comportamento. Não foi feito push. O histórico Git permite
 consultar os hashes da sequência; o commit inicial foi preservado.
+
+## Verificação do que está efetivamente no Git
+
+Foi exportado o commit **3bfc6b2** para um diretório temporário, sem .env, caches,
+node_modules ou arquivos não rastreados. A imagem foi construída exclusivamente
+dessa exportação. Resultado: build/typecheck aprovado, **125 testes backend
+aprovados e 2 externos opt-in ignorados em 9,81 s**; os **6 testes do cliente**
+também passaram usando a exportação. Isso verifica o conjunto versionado completo,
+não apenas arquivos presentes no diretório original. O registro final acrescenta
+somente documentação. A limpeza recursiva foi bloqueada pela política da ferramenta;
+a exportação permanece em
+`C:\Users\Pedro\AppData\Local\Temp\studyforge-review-046e0f0cc22d4e31a100d96b5d5f915e`.
+Ela não contém .env ou credenciais e não é parte do repositório. A exclusão não foi
+tentada por outro caminho.
+
+| Commit | Parte revisada |
+|---|---|
+| d25523f | Guia didático e entrada pelo README. |
+| ebd3f54 | Princípios, especificação e contratos. |
+| 510bc69 | Ambiente, dependências, esquema e migrações. |
+| 7180b10 | Pipeline e biblioteca. |
+| 4c4d313 | Recuperação, agentes e provedores. |
+| 81de05a | API, sessão e promoção de fontes. |
+| 56270ff | Interface e cliente HTTP. |
+| c86fe6c | Configuração do fluxo Git e finais de linha. |
+| 3bfc6b2 | Corpus, avaliações, evidências e aceite registrado. |
+
+Os avisos de depreciação dos SDKs e a transformação experimental de tipos nos
+testes Node continuam visíveis; não causaram falha e não foram suprimidos para
+apresentar um resultado mais limpo. A aplicação segue localhost-only.
