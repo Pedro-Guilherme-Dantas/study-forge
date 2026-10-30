@@ -7,6 +7,25 @@ from tests.support import service_for
 
 
 @pytest.mark.integration
+async def test_empty_library_never_requests_an_external_query_vector(library_url):
+    engine, database, executor, service = service_for(library_url)
+
+    class ForbiddenProvider:
+        async def embed(self, *args, **kwargs):
+            pytest.fail("An empty knowledge base must not consume embedding quota")
+
+    try:
+        assert (
+            await Retriever(service.settings, database, ForbiddenProvider()).retrieve(
+                "Authored question", Budget(2)
+            )
+            == []
+        )
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.integration
 async def test_exact_ranking_only_active_ready_profile(library_url):
     engine, database, executor, service = service_for(library_url)
     first = await service.accept_markdown("same.md", b"# Old\n\nold content")

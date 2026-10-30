@@ -2,6 +2,13 @@
 
 Esta seção substitui o estado das atualizações históricas abaixo.
 
+**Condição operacional posterior:** diagnóstico após relato de uso confirmou
+esgotamento da cota diária gratuita de embeddings (429). Uploads e pesquisas que
+precisam de vetores reais permanecem dependentes de liberação dessa cota. Mensagem
+específica e recuperação vazia sem chamada vetorial corrigidas; 130 testes
+aprovados e 2 externos opt-in separados. Veja provider-quota.md. Readiness do banco
+não comprova disponibilidade dos provedores externos.
+
 - Aplicação recriada em **modo real**, Gemini **3.5 Flash Lite**, Brave configurado,
   readiness OK em http://127.0.0.1:8000. Somente APP_MODE foi alterado no .env;
   valores de credenciais não foram exibidos. Nenhum fallback 3.1 foi adicionado.

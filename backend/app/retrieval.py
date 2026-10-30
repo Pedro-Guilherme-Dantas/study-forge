@@ -18,11 +18,14 @@ class Retriever:
         self.settings, self.database, self.provider = settings, database, provider
 
     async def retrieve(self, question, budget, temporary=()):
-        vectors = await self.provider.embed([question], query=True, budget=budget)
-        vector = GeminiProvider.validate_vector(vectors[0])
-        distance = Chunk.embedding.cosine_distance(vector)
-        query = (
-            select(Chunk, Material, distance.label("distance"))
+        temporary = [
+            snapshot
+            for snapshot in temporary
+            if snapshot.embedding_profile == self.settings.embedding_profile
+            and snapshot.passages
+        ]
+        available = (
+            select(Chunk, Material)
             .join(MaterialVersion, Chunk.material_version_id == MaterialVersion.id)
             .join(Material, Material.active_version_id == MaterialVersion.id)
             .where(
@@ -31,6 +34,19 @@ class Retriever:
                 Chunk.embedding_profile_id == self.settings.embedding_profile,
                 MaterialVersion.embedding_profile_id == self.settings.embedding_profile,
             )
+        )
+        if not temporary:
+            async with self.database() as session:
+                if (
+                    await session.scalar(available.with_only_columns(Chunk.id).limit(1))
+                    is None
+                ):
+                    return []
+        vectors = await self.provider.embed([question], query=True, budget=budget)
+        vector = GeminiProvider.validate_vector(vectors[0])
+        distance = Chunk.embedding.cosine_distance(vector)
+        query = (
+            available.add_columns(distance.label("distance"))
             .order_by(distance, Chunk.id)
             .limit(self.settings.retrieval_top_k)
         )

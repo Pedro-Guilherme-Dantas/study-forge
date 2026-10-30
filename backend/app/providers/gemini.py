@@ -11,6 +11,26 @@ from app.settings import Settings
 from pydantic import ValidationError
 
 
+def quota_error(error, stage):
+    if getattr(error, "code", None) != 429:
+        return None
+    details = getattr(error, "details", {})
+    daily = False
+    if isinstance(details, dict):
+        for detail in details.get("error", {}).get("details", []):
+            daily |= any(
+                "PerDay" in str(item.get("quotaId", ""))
+                for item in detail.get("violations", [])
+            )
+    service = "embeddings" if stage == "embed" else "geração de respostas"
+    message = (
+        f"A cota diária de {service} do Gemini foi atingida. Aguarde a renovação da cota ou revise os limites do projeto no provedor."
+        if daily
+        else f"O limite de uso de {service} do Gemini foi atingido. Aguarde a liberação da cota antes de tentar novamente."
+    )
+    return AppError("PROVIDER_QUOTA_EXCEEDED", message, 429, stage, True)
+
+
 async def call_provider(budget, callback):
     """At most two idempotent attempts; each counts against the shared execution budget."""
     for attempt in range(2):
@@ -132,7 +152,10 @@ class GeminiProvider:
             return vectors
         except AppError:
             raise
-        except Exception:
+        except Exception as error:
+            quota = quota_error(error, "embed")
+            if quota:
+                raise quota from None
             raise AppError(
                 "EXTERNAL_UNAVAILABLE",
                 "O serviço de vetores está indisponível.",
@@ -198,6 +221,9 @@ class GeminiProvider:
             self.last_generation_metadata.update(
                 error_type=type(error).__name__, status=getattr(error, "code", None)
             )
+            quota = quota_error(error, "generation")
+            if quota:
+                raise quota from None
             raise AppError(
                 "EXTERNAL_UNAVAILABLE",
                 "O serviço de geração está indisponível.",
