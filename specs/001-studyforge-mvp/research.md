@@ -1,5 +1,23 @@
 # Research: StudyForge — decisões e experimentos
 
+## Revisão autorizada: observabilidade para apresentação
+
+Atualização de 2026-10-30: captura detalhada autorizada pelo usuário via
+`STUDYFORGE_TRACE_CONTENT`. Perguntas, trechos, prompts e respostas podem ser enviados ao
+LangSmith, com aviso de armazenamento remoto, mascaramento das chaves configuradas e limites.
+Sem persistência local de conteúdo. Seis árvores detalhadas indexadas, incluindo uma jornada
+HTTP real com Gemini em schema isolado. Uma leitura adicional recebeu 429: limites de consulta
+do provedor também afetam diagnóstico. Não há retry ilimitado nem dependência do tracing
+para responder. Evidência em `evidence/langsmith-content.md`.
+
+LangSmith opcional com spans explícitos de metadados operacionais, captura automática de
+conteúdo bloqueada e divulgação externa na interface. SDK 0.14.14 conferido na imagem;
+cliente assíncrono com uma tentativa e prazo finito, sem novo serviço. Exportação/indexação
+de cinco árvores de fixture confirmadas via API. Guia: `docs/observabilidade-langsmith.md`;
+evidência: `evidence/langsmith.md`. Referências oficiais:
+https://docs.langchain.com/langsmith/trace-without-env-vars e
+https://docs.langchain.com/langsmith/log-traces-to-agent (`tracer_session_name` compatível).
+
 **Data**: 2026-10-28. Pesquisa documental em fontes primárias; nenhum pacote instalado,
 modelo chamado ou benchmark executado neste comando. A data de consulta não garante acesso
 ao modelo na conta do usuário. As versões abaixo são candidatas; E1 produzirá locks reproduzíveis.

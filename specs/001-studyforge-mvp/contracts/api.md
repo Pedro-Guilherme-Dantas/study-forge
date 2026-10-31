@@ -184,3 +184,15 @@ GET `/api/materials/{material_id}/versions/{version_id}/chunks` retorna `{items:
 passagens da versão disponível sem conhecer antecipadamente os IDs dos chunks. Aplica os mesmos
 controles de associação e READY da consulta individual. Não altera autorização ou persistência.
 O contrato OpenAPI inclui essa operação como `listLibraryChunks`.
+
+### Observabilidade opcional
+
+GET `/api/observability` (`getObservability`) exige sessão local e retorna `enabled`,
+`capture` (`operational_metadata_only` ou `content`), `sent`, `failed`, `dropped`, `queued`
+e `last_error_code` (nulo ou código sanitizado de limite remoto, autenticação, timeout ou falha genérica).
+Contadores são por processo e por árvore de execução; `sent` indica envio aceito sem erro HTTP,
+não verificação de indexação no painel. Falha durante uma árvore pode deixar spans remotos parciais.
+Não retorna chaves, conteúdo ou exceções de transporte. Não afeta readiness.
+GET `/api/runtime` informa o modo de envio ao LangSmith quando habilitado, inclusive em fixture.
+No modo `content`, informa envio/armazenamento remoto de perguntas, trechos, fontes, prompts e
+respostas; o fechamento só descarta cópias locais. Não retorna esse conteúdo no endpoint de status.

@@ -11,6 +11,7 @@ from app.security import LocalSecurity
 from app.db.session import make_database
 from app.errors import AppError
 from app.diagnostics import configure
+from app.observability import Observability
 from app.api import (
     sessions,
     runtime,
@@ -40,6 +41,7 @@ def create_app(settings: Settings | None = None):
     settings = settings or get_settings()
     configure()
     store = SessionStore()
+    observability = Observability(settings)
     engine, database = make_database(settings)
     executor = Executor(
         settings.max_ingestions,
@@ -48,6 +50,7 @@ def create_app(settings: Settings | None = None):
 
     @asynccontextmanager
     async def lifespan(app):
+        await observability.start()
         try:
             await app.state.ingestion.recover()
         except SQLAlchemyError:
@@ -56,6 +59,7 @@ def create_app(settings: Settings | None = None):
         yield
         await store.shutdown()
         await executor.shutdown()
+        await observability.close()
         await engine.dispose()
 
     app = FastAPI(
@@ -66,6 +70,7 @@ def create_app(settings: Settings | None = None):
         redoc_url=None,
     )
     app.state.settings, app.state.store = settings, store
+    app.state.observability = observability
     app.state.engine, app.state.database = engine, database
     app.state.executor = executor
     app.state.ingestion = IngestionService(
@@ -80,6 +85,7 @@ def create_app(settings: Settings | None = None):
         ),
         executor,
         Researcher(settings, SearchProvider(settings), SafeFetcher(settings), provider),
+        observability=observability,
     )
     app.add_middleware(LocalSecurity, store=store, settings=settings)
 

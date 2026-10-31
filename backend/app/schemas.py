@@ -59,6 +59,24 @@ class RuntimeInfo(Model):
     limits: ExperimentLimits
 
 
+class ObservabilityInfo(Model):
+    enabled: bool
+    capture: Literal["operational_metadata_only", "content"]
+    sent: int = Field(ge=0)
+    failed: int = Field(ge=0)
+    dropped: int = Field(ge=0)
+    queued: int = Field(ge=0)
+    last_error_code: (
+        Literal[
+            "EXPORT_TIMEOUT",
+            "EXPORT_RATE_LIMITED",
+            "EXPORT_AUTH_FAILED",
+            "EXPORT_FAILED",
+        ]
+        | None
+    ) = None
+
+
 class SessionReceipt(Model):
     session_id: UUID
     server_instance_id: UUID

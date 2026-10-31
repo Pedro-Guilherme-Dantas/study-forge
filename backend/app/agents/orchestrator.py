@@ -5,6 +5,7 @@ import re
 from uuid import UUID, uuid4
 from app.operations import Budget
 from app.errors import AppError
+from app.observability import Observability, annotate, span, capture_content
 from app.schemas import (
     TurnResult,
     ResearchOffer,
@@ -16,9 +17,10 @@ from app.schemas import (
 
 
 class Orchestrator:
-    def __init__(self, settings, graph, executor, researcher=None):
+    def __init__(self, settings, graph, executor, researcher=None, observability=None):
         self.settings, self.graph, self.executor = settings, graph, executor
         self.researcher = researcher
+        self.observability = observability or Observability(settings)
 
     @staticmethod
     def explicit_research(message):
@@ -84,6 +86,13 @@ class Orchestrator:
     async def run(
         self, conversation, epoch, turn_id, request, authorized_research=False
     ):
+        with self.observability.turn(turn_id, self.settings.app_mode):
+            capture_content(
+                inputs={"question": request.message, "intent": request.intent}
+            )
+            await self._run(conversation, epoch, turn_id, request, authorized_research)
+
+    async def _run(self, conversation, epoch, turn_id, request, authorized_research):
         try:
             async with asyncio.timeout(self.settings.turn_timeout):
                 budget = Budget(
@@ -96,6 +105,9 @@ class Orchestrator:
                     or request.intent == "research"
                     or self.explicit_research(request.message)
                 )
+                annotate(research_authorized=researched)
+                if authorized_research:
+                    annotate(research_accepted=True)
 
                 async def perform_research():
                     research_id = await self.research(
@@ -126,7 +138,15 @@ class Orchestrator:
                 budget.check()
                 research_id = result.get("research_id")
                 output, evidence = result["output"], result["evidence"]
-                citations = evidence.resolve(output.citation_ids, turn_id)
+                with span("citations.validate"):
+                    capture_content(inputs={"citation_ids": output.citation_ids})
+                    citations = evidence.resolve(output.citation_ids, turn_id)
+                    capture_content(
+                        outputs={
+                            "citations": [c.model_dump(mode="json") for c in citations]
+                        }
+                    )
+                    annotate(citation_count=len(citations), status="valid")
                 status = {
                     "supported": "complete",
                     "partial": "partial",
@@ -150,6 +170,18 @@ class Orchestrator:
                     citations=citations,
                     research_offer=offer,
                     research_id=research_id,
+                )
+                annotate(
+                    status=status,
+                    evidence_status=output.evidence_status,
+                    citation_count=len(citations),
+                )
+                capture_content(
+                    outputs={
+                        "answer": output.answer_markdown,
+                        "unsupported_points": output.unsupported_points,
+                        "citations": [c.model_dump(mode="json") for c in citations],
+                    }
                 )
                 async with conversation.lock:
                     if conversation.closed or conversation.epoch != epoch:
@@ -177,6 +209,7 @@ class Orchestrator:
                 )
             )
             previous = conversation.turns.get(turn_id)
+            annotate(status="failed", error_code=safe.code)
             final = TurnResult(
                 turn_id=turn_id,
                 status="failed",
@@ -301,6 +334,14 @@ class Orchestrator:
                 )
             turn = conversation.turns[str(offer.turn_id)]
             if not accept:
+                with self.observability.turn(
+                    str(offer.turn_id), self.settings.app_mode
+                ):
+                    capture_content(
+                        inputs={"question": offer.topic}, outputs={"status": "declined"}
+                    )
+                    with span("research.consent"):
+                        annotate(research_accepted=False, status="declined")
                 offer.state = "declined"
                 turn.status = "partial" if turn.citations else "insufficient"
                 turn.research_offer = None

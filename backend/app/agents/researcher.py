@@ -9,6 +9,7 @@ from app.ingestion.extract_html import extract_html
 from app.ingestion.normalize import normalize
 from app.ingestion.chunk import chunk_text, digest, pipeline_fingerprint
 from app.web_fetch import HtmlPage
+from app.observability import annotate, observed, capture_content
 
 
 @dataclass(frozen=True)
@@ -45,7 +46,9 @@ class Researcher:
             provider,
         )
 
+    @observed("research.collect", "tool")
     async def collect(self, topic, budget):
+        capture_content(inputs={"query": topic})
         budget.step()
         candidates = await self.search.discover(topic, budget)
         snapshots, errors, unavailable, visited = [], [], [], set()
@@ -152,4 +155,21 @@ class Researcher:
                         error_code="SOURCE_PROCESSING_FAILED",
                     )
                 )
+        annotate(
+            count=len(snapshots),
+            error_count=len(errors),
+            status="partial"
+            if snapshots and errors
+            else "succeeded"
+            if snapshots
+            else "failed"
+            if errors
+            else "empty",
+        )
+        capture_content(
+            outputs={
+                "sources": [s.summary.model_dump(mode="json") for s in snapshots],
+                "unavailable": [s.model_dump(mode="json") for s in unavailable],
+            }
+        )
         return snapshots, unavailable, errors

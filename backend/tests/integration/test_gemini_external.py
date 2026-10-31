@@ -70,3 +70,13 @@ def test_real_gemini_markdown_to_retrieval_tutor_and_citation(library_url):
             client.get(base + "/citations/" + reference["citation_id"]).status_code
             == 410
         )
+        if settings.studyforge_tracing:
+            # Keep the isolated test server alive until its authorized trace is exported.
+            client.portal.call(app_trace_flush, client.app.state.observability)
+
+
+async def app_trace_flush(observability):
+    import asyncio
+
+    await asyncio.wait_for(observability.flush(), 15)
+    assert observability.status()["failed"] == 0

@@ -9,6 +9,7 @@ from app.errors import AppError
 from app.operations import Budget
 from app.settings import Settings
 from pydantic import ValidationError
+from app.observability import observed, span, annotate, capture_content
 
 
 def quota_error(error, stage):
@@ -35,7 +36,9 @@ async def call_provider(budget, callback):
     """At most two idempotent attempts; each counts against the shared execution budget."""
     for attempt in range(2):
         try:
-            return await budget.call(callback)
+            with span("provider.attempt", "tool"):
+                annotate(attempt=attempt + 1)
+                return await budget.call(callback)
         except Exception as error:
             if attempt or (
                 getattr(error, "code", None) not in (429, 500, 502, 503, 504)
@@ -109,9 +112,25 @@ class GeminiProvider:
             ),
         )
 
+    @observed("gemini.embed", "embedding")
     async def embed(
         self, texts: list[str], *, query=False, budget: Budget | None = None
     ):
+        capture_content(
+            inputs={
+                "texts": texts if query else texts[:1],
+                "sampled": not query and len(texts) > 1,
+                "task": "query" if query else "document",
+            }
+        )
+        annotate(
+            input_count=len(texts),
+            query=query,
+            dimensions=768,
+            model=self.settings.gemini_embedding_model
+            if self.settings.app_mode == "real"
+            else "fixture",
+        )
         if self.settings.app_mode == "fixture":
             return [self._fixture_vector(text) for text in texts]
         client = self._client()
@@ -166,7 +185,10 @@ class GeminiProvider:
         finally:
             await client.aio.aclose()
 
+    @observed("gemini.generate", "llm")
     async def generate(self, prompt: str, schema, *, budget: Budget | None = None):
+        annotate(model=self.settings.gemini_generation_model)
+        capture_content(inputs={"messages": [{"role": "user", "content": prompt}]})
         self.last_generation_metadata = {}
         client = self._client()
         from google.genai import types
@@ -189,6 +211,13 @@ class GeminiProvider:
                 ),
             )
             usage = result.usage_metadata
+            capture_content(outputs={"generations": [{"text": result.text}]})
+            if usage:
+                annotate(
+                    input_tokens=getattr(usage, "prompt_token_count", 0) or 0,
+                    output_tokens=getattr(usage, "candidates_token_count", 0) or 0,
+                    total_tokens=getattr(usage, "total_token_count", 0) or 0,
+                )
             self.last_generation_metadata = {
                 "model_version": result.model_version,
                 "finish_reason": str(result.candidates[0].finish_reason)

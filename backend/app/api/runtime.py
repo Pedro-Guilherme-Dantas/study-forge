@@ -1,7 +1,13 @@
 from fastapi import APIRouter, Request
 from sqlalchemy import text
 from starlette.responses import JSONResponse
-from app.schemas import RuntimeInfo, ProviderInfo, ExperimentLimits, HealthInfo
+from app.schemas import (
+    RuntimeInfo,
+    ProviderInfo,
+    ExperimentLimits,
+    HealthInfo,
+    ObservabilityInfo,
+)
 
 router = APIRouter()
 
@@ -17,12 +23,32 @@ async def get_runtime(request: Request):
             generation_model="fixture" if fixture else settings.gemini_generation_model,
             embedding_model=settings.embedding_profile,
             retention_status="fixture_only" if fixture else "provider_managed",
-            disclosure="Ensaio local com respostas/vetores de teste, sem envio externo."
-            if fixture
-            else "Perguntas e trechos necessários são enviados à API Gemini; pesquisas enviam consultas ao provedor de busca. Conversas e fontes não selecionadas não são persistidas localmente. A retenção nos provedores segue suas políticas.",
+            disclosure=(
+                "Ensaio local com respostas/vetores de teste, sem envio aos provedores de IA e busca."
+                if fixture
+                else "Perguntas e trechos necessários são enviados à API Gemini; pesquisas enviam consultas ao provedor de busca. Conversas e fontes não selecionadas não são persistidas localmente. A retenção nos provedores segue suas políticas."
+            )
+            + (
+                (
+                    " Observabilidade detalhada ativa: perguntas, trechos recuperados, fontes, prompts e respostas são enviados e armazenados no LangSmith, sob a política de retenção dele. Encerrar a conversa descarta somente as cópias locais."
+                    if settings.studyforge_trace_content
+                    else " Observabilidade ativa: etapas, contagens, estados e códigos de erro são enviados ao LangSmith, sob a política de retenção dele; sem perguntas, respostas ou textos das fontes."
+                )
+                if settings.studyforge_tracing
+                else ""
+            ),
         ),
         limits=ExperimentLimits(**settings.public_limits()),
     )
+
+
+@router.get(
+    "/api/observability",
+    response_model=ObservabilityInfo,
+    operation_id="getObservability",
+)
+async def observability(request: Request):
+    return request.app.state.observability.status()
 
 
 @router.get("/health/live", response_model=HealthInfo, operation_id="liveness")

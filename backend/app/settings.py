@@ -20,6 +20,16 @@ class Settings(BaseSettings):
     gemini_generation_model: str = "gemini-3.5-flash-lite"
     gemini_embedding_model: str = "gemini-embedding-001"
     langsmith_tracing: bool = False
+    studyforge_tracing: bool = False
+    studyforge_trace_content: bool = False
+    langsmith_api_key: SecretStr = SecretStr("")
+    langsmith_project: str = Field(
+        default="studyforge-demo", min_length=1, max_length=100
+    )
+    langsmith_workspace_id: str = ""
+    langsmith_endpoint: Literal[
+        "https://api.smith.langchain.com", "https://eu.api.smith.langchain.com"
+    ] = "https://api.smith.langchain.com"
     langchain_tracing_v2: bool = False
     log_payloads: bool = False
     max_upload_bytes: int = Field(1_048_576, ge=1)
@@ -45,6 +55,10 @@ class Settings(BaseSettings):
     def validate_policy(self):
         if self.langsmith_tracing or self.langchain_tracing_v2 or self.log_payloads:
             raise ValueError("Payload tracing is not supported in this application")
+        if self.studyforge_tracing and not self.langsmith_api_key.get_secret_value():
+            raise ValueError("LANGSMITH_API_KEY is required for STUDYFORGE_TRACING")
+        if self.studyforge_trace_content and not self.studyforge_tracing:
+            raise ValueError("STUDYFORGE_TRACE_CONTENT requires STUDYFORGE_TRACING")
         if not 0 <= self.chunk_overlap < self.chunk_target <= self.chunk_max:
             raise ValueError("Invalid textual chunk configuration")
         return self

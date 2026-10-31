@@ -62,7 +62,8 @@ Usar limites finitos de laboratório em E1–E6 e recalibrar com os resultados.
 
 **Constraints**: HTML/Markdown; nenhuma gravação de conteúdo não selecionado; autorização fora
 dos agentes; execução limitada; não publicar documentos parcialmente ingeridos. LangSmith não
-é necessário e ficará desabilitado para conteúdo do usuário.
+é opcional; captura de conteúdo do usuário fica desabilitada. Spans explícitos de metadados
+operacionais podem ser enviados quando o responsável habilitar a integração.
 
 **Scale/Scope**: uma pessoa, uma instância, um worker, uma conversa ativa por sessão local.
 Os limites de laboratório recusam excesso com mensagem explícita; não expiram fontes silenciosamente.
@@ -281,9 +282,17 @@ e mantém a autorização já aceita para retry explícito.
   temporárias. Allowlist: request_id aleatório, etapa, classe de erro, duração, status e contagem.
   Sanitizar exceções SDK/SQL e desabilitar parâmetros SQL em logs. Fonte selecionada pode ter
   auditoria da autorização em SQL; chat não vira tabela.
-- Desabilitar LangSmith, OpenTelemetry de payloads, debug de SDK, HTTP caches e logging de acesso
-  com query string. Se LangSmith for experimentado, somente fixtures sintéticas/autorizadas
-  e sem dependência para rodar ou apresentar. Capturas/screenshots da demonstração com conteúdo
+- Desabilitar captura automática de payloads LangSmith, OpenTelemetry de payloads, debug de SDK,
+  HTTP caches e logging de acesso com query string. Revisão autorizada para a apresentação:
+  LangSmith opcional via `STUDYFORGE_TRACING`, com spans explícitos de metadados por padrão.
+  Ampliação autorizada em 2026-10-30: `STUDYFORGE_TRACE_CONTENT=true` captura perguntas,
+  evidências, fontes, prompts, respostas e citações para inspeção remota. Divulgação na UI,
+  mascaramento das chaves configuradas e campos de credencial, limites textuais e de estrutura;
+  sem serializar estado completo, headers, callbacks, settings, orçamento ou vetores.
+  O armazenamento remoto segue o provedor; encerrar conversa não remove traces remotos.
+  Exportação assíncrona limitada em RAM, sem spool/replay local; falha remota não bloqueia o tutor.
+  Guia em `docs/observabilidade-langsmith.md` e cenários de fixture em `evals.trace_demo`.
+  Sem dependência para rodar ou apresentar. Capturas/screenshots da demonstração com conteúdo
   não selecionado também não são feitas automaticamente.
   Rejeitar configuração de tracing de payloads no perfil real, inclusive flags legadas como
   LANGCHAIN_TRACING_V2; não depender apenas de uma variável de ambiente com nome novo.

@@ -1,12 +1,15 @@
 import httpx
 from app.errors import AppError
+from app.observability import observed, capture_content
 
 
 class SearchProvider:
     def __init__(self, settings):
         self.settings = settings
 
+    @observed("search.discover", "tool")
     async def discover(self, topic, budget):
+        capture_content(inputs={"query": topic})
         if self.settings.app_mode == "fixture":
             return [
                 {

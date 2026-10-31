@@ -35,6 +35,12 @@ services:
       EMBEDDING_BATCH_SIZE: ${EMBEDDING_BATCH_SIZE:-32}
       LANGSMITH_TRACING: "false"
       LANGCHAIN_TRACING_V2: "false"
+      STUDYFORGE_TRACING: ${STUDYFORGE_TRACING:-false}
+      STUDYFORGE_TRACE_CONTENT: ${STUDYFORGE_TRACE_CONTENT:-false}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY:-}
+      LANGSMITH_PROJECT: ${LANGSMITH_PROJECT:-studyforge-demo}
+      LANGSMITH_ENDPOINT: ${LANGSMITH_ENDPOINT:-https://api.smith.langchain.com}
+      LANGSMITH_WORKSPACE_ID: ${LANGSMITH_WORKSPACE_ID:-}
     depends_on:
       db: {condition: service_healthy}
     read_only: true

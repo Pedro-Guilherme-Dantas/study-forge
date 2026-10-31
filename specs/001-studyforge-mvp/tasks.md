@@ -1,5 +1,35 @@
 # Tasks: StudyForge — assistente pessoal de estudos (MVP)
 
+## Incremento autorizado: observabilidade para apresentação
+
+### Captura detalhada autorizada em 2026-10-30
+
+- [X] T101 Adicionar modo opt-in de conteúdo com limites, mascaramento e fallback de metadados — settings, observability, Compose.
+- [X] T102 Capturar pergunta, evidências, prompt, resposta e citações nas fronteiras explícitas — agentes/providers.
+- [X] T103 Atualizar divulgação externa, status sanitizado, OpenAPI e testes de privacidade/limites/modos.
+- [X] T104 Validar suíte, fixtures detalhadas, jornada HTTP Gemini real isolada e leitura dos registros remotos — `evidence/langsmith-content.md`.
+- [X] T105 Habilitar configuração local e atualizar guia de teste manual e preparação da entrevista.
+
+T101–T105 acrescentam cinco tarefas ao incremento anterior, sem fechar pendências do MVP.
+
+As quatro pendências antigas do checklist permanecem abertas; autorização anterior para
+prosseguir preservada. Este incremento não encerra checkpoints pendentes do MVP.
+
+- [X] T095 Definir captura mínima e configuração opcional LangSmith, preservando retenção local,
+  credenciais no backend e bloqueio de captura automática — `plan.md`, `.env.example`, `compose.yaml`.
+- [X] T096 Implementar árvores por turno e spans de agentes, recuperação, chamadas/tentativas e
+  citações, com erros sanitizados e exportação RAM limitada — `backend/app/observability.py`, agentes/providers.
+- [X] T097 Expor status protegido e divulgação externa, atualizar contrato e testar privacidade,
+  hierarquia, isolamento, fila e falha de exportação — runtime, OpenAPI, `test_observability.py`.
+- [X] T098 Criar ensaio do grafo real com fixtures, recusa, pesquisa e falha controlada — `backend/evals/trace_demo.py`.
+- [X] T099 Executar suíte, build, ensaio remoto e consulta de indexação; habilitar configuração
+  local com a chave fornecida sem exibi-la — `evidence/langsmith.md`.
+- [X] T100 Documentar painel, interpretação, investigação, limites e roteiro — `docs/observabilidade-langsmith.md`.
+
+Evidência: **136 passed, 2 externos opt-in skipped; cinco árvores indexadas; readiness 200**.
+Não comprova ensaio visual do painel. A contagem original de 94 tarefas abaixo é histórica;
+o incremento acrescenta seis tarefas, totalizando 100.
+
 **Feature**: `001-studyforge-mvp`
 
 **Created**: 2026-10-28

@@ -12,6 +12,9 @@ def isolate_external_credentials(request, monkeypatch):
     monkeypatch.setenv("APP_MODE", "fixture")
     monkeypatch.setenv("GEMINI_API_KEY", "")
     monkeypatch.setenv("SEARCH_API_KEY", "")
+    monkeypatch.setenv("STUDYFORGE_TRACING", "false")
+    monkeypatch.setenv("STUDYFORGE_TRACE_CONTENT", "false")
+    monkeypatch.setenv("LANGSMITH_API_KEY", "")
     from app.settings import get_settings
 
     get_settings.cache_clear()

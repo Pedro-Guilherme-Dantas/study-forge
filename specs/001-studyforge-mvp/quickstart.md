@@ -1,5 +1,10 @@
 # Executar e verificar StudyForge
 
+Observabilidade opcional implementada: consulte [o guia LangSmith](../../docs/observabilidade-langsmith.md)
+para configuração, cenários de ensaio e interpretação das execuções. A integração usa spans
+explícitos, com metadados por padrão e conteúdo autorizado via `STUDYFORGE_TRACE_CONTENT=true`;
+não habilite as flags de captura automática LangSmith/LangChain. O guia mostra o teste manual.
+
 Os fluxos locais estão implementados. Os comandos abaixo foram executados em
 contêineres. As jornadas reais Gemini/Brave já passaram separadamente; avaliações
 de recuperação e itens de aceite ainda abertos estão em evidence/readiness.md.
@@ -58,7 +63,7 @@ Para parar mantendo biblioteca:
 docker compose down
 ```
 
-Não usar down -v no fluxo normal: apagaria o volume. Logs de corpo e traces externos ficam desativados. Erros públicos são sanitizados e operações consultáveis. Não existe restauração de chat ou replay automático de perguntas.
+Não usar down -v no fluxo normal: apagaria o volume. Logs de corpo e captura automática de traces ficam desativados; spans operacionais externos são opcionais via `STUDYFORGE_TRACING`. Erros públicos são sanitizados e operações consultáveis. Não existe restauração de chat ou replay automático de perguntas.
 
 ## Integrações externas
 
