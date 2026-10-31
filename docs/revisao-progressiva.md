@@ -139,3 +139,45 @@ tentada por outro caminho.
 Os avisos de depreciação dos SDKs e a transformação experimental de tipos nos
 testes Node continuam visíveis; não causaram falha e não foram suprimidos para
 apresentar um resultado mais limpo. A aplicação segue localhost-only.
+
+## Revisão incremental — 31/10/2026
+
+Foram revisados os experimentos CPU, a observabilidade explícita e a classificação
+por LLM acrescentados após 62bc465. Commits separados:
+
+| Commit | Escopo |
+|---|---|
+| fbdf87d | Experimento E5-small e resultados públicos, com instruções de reprodução; sem pesos/caches. |
+| 4132a87 | LangSmith opcional, limites de captura/exportação, mascaramento, status, divulgação e contratos. |
+| 780c6ff | Intenção por LLM, testes de encaminhamento e avaliação sem fallback silencioso. |
+
+Problema corrigido: o ensaio de intenção aceitava um resultado do fallback textual
+como se comprovasse uma classificação do LLM. O ensaio agora exige provedor real
+sem fallback; uma falha interrompe a avaliação. Teste determinístico cobre essa
+regra, e outros três verificam o encaminhamento pelo grafo real e o registro da
+pesquisa. Os cinco exemplos da rodada anterior continuam sendo evidência histórica
+de comportamento da aplicação, não comprovação isolada de acerto do LLM em todos
+os casos. Não repetimos chamadas externas nesta revisão.
+
+Organização: app/ contém serviços de produção; evals/ contém runners e resultados;
+local_cpu/ isola dependências ONNX da aplicação; docs/ contém os guias. O guia
+principal foi corrigido para refletir Gemini no orquestrador e no tutor. O Dockerfile
+experimental agora inclui verify.py e há comandos de reprodução. As duas execuções
+salvas tiveram seus agregados comparados novamente: equivalentes. Não repetimos a
+inferência E5 nem afirmamos novos resultados de qualidade.
+
+Validação do diretório de trabalho: build/typecheck e 154 testes backend aprovados,
+2 externos opt-in ignorados. Depois, exportamos somente HEAD 780c6ff para
+backend/test-artifacts/review-20261031/source, sem .env ou arquivos não rastreados.
+O build dessa exportação passou; 154 testes backend passaram em 11,31 s e os seis
+testes do cliente passaram. A primeira chamada docker run isolada omitiu DATABASE_URL
+do usuário restrito e falhou no teste de permissões; a repetição com a configuração
+correta do Compose passou. Nenhuma mudança de permissão foi feita para contornar isso.
+Os testes de banco usam schemas aleatórios, preservando a biblioteca pessoal.
+
+As chaves configuradas foram procuradas nos arquivos staged de observabilidade
+sem exibir seus valores; nenhuma encontrada. .env continua ignorado, tracing local
+permanece desligado. Documento pessoal de preparação de entrevista permanece fora
+do Git e não representa contrato técnico atualizado. Sem push ou alteração da
+configuração de acesso. Depreciações de SDK e aviso experimental Node continuam
+visíveis. As quatro pendências gerais do checklist permanecem abertas.
