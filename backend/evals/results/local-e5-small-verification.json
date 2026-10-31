@@ -1,0 +1,8 @@
+{
+  "token_partition_no_content_loss": true,
+  "adapted_token_limit_verified": 512,
+  "batch_samples": 8,
+  "minimum_single_vs_batch_cosine": 0.9999999999999996,
+  "minimum_padding_id_cosine": 0.9999999999999996,
+  "repeated_aggregate_metrics_identical": true
+}
