@@ -86,6 +86,7 @@ def create_app(settings: Settings | None = None):
         executor,
         Researcher(settings, SearchProvider(settings), SafeFetcher(settings), provider),
         observability=observability,
+        provider=provider,
     )
     app.add_middleware(LocalSecurity, store=store, settings=settings)
 

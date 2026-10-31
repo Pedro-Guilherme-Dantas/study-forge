@@ -8,6 +8,19 @@ planejamento. Este é um desenho revisável; não representa implementação ou 
 
 ## Summary
 
+### Atualização autorizada em 2026-10-30 — intenção por LLM
+
+O serviço Orchestrator usa o mesmo Gemini configurado para classificar a mensagem
+atual em pesquisa explícita, recuperação ou ambiguidade. A classificação precede
+o grafo e não recebe histórico ou conteúdo recuperado. Pesquisa exige resultado
+estruturado e um trecho literal não vazio da mensagem. Ambiguidade segue para
+recuperação; falha/timeout de 15 s usa a regra textual anterior. Aceites e intenção
+research da API são decisões explícitas e dispensam nova classificação. O prazo
+e as tentativas compartilham o orçamento do turno. Nenhuma permissão de persistência
+é atribuída ao modelo. A classificação é probabilística; a validação literal não
+comprova semanticamente consentimento e os exemplos de negação/citação precisam
+continuar sendo ampliados. Tracing permanece desligado na configuração local.
+
 Entregar biblioteca Markdown, tutor com RAG e citações consultáveis, pesquisa HTML temporária,
 seleção explícita para guardar fontes e progresso operacional. Preservar integralmente:
 

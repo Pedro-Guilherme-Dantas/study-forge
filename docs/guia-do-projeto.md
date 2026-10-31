@@ -249,11 +249,12 @@ Arquivo principal: `backend/app/ingestion/promotion.py`.
 | Pesquisador | Descobrir candidatos, obter HTML e preparar fontes temporárias. | Não grava automaticamente essas fontes na biblioteca. |
 | Tutor | Explicar usando os trechos disponíveis e indicar evidências. | Não pesquisa nem seleciona/grava fontes por iniciativa própria. |
 
-No código atual, esses são **papéis supervisionados**, não três modelos autônomos
-conversando livremente. O orquestrador e o pesquisador executam regras e serviços;
-a geração de linguagem está no tutor. O LangGraph organiza a sequência e os
-desvios autorizados. O reconhecimento de pedido explícito usa regras textuais
-conservadoras; a tela Fontes também oferece uma ação direta de pesquisa.
+No código atual, esses são **papéis supervisionados**. O orquestrador usa Gemini
+para classificar a intenção da mensagem atual; o tutor usa Gemini para formular
+respostas com evidências. O pesquisador executa ferramentas e processamento
+determinístico. O LangGraph organiza a sequência e os desvios autorizados.
+Classificação ambígua segue para recuperação; falha do classificador usa a regra
+textual anterior. A tela Fontes também oferece uma ação direta de pesquisa.
 
 ## 9. O que é guardado e por quanto tempo
 
@@ -340,3 +341,11 @@ gamificação, calendário ou múltiplos usuários.
 [estado da entrega](../specs/001-studyforge-mvp/evidence/readiness.md) ·
 [tarefas](../specs/001-studyforge-mvp/tasks.md) ·
 [ensaio visual](../specs/001-studyforge-mvp/evidence/rehearsal.md).
+
+### Atualização de intenção — 30/10/2026
+
+O orquestrador passou a usar Gemini para classificar a intenção da mensagem atual
+antes da execução do grafo. Não recebe os materiais nem o histórico nessa etapa.
+Pedido explícito reconhecido vai para pesquisa; pergunta comum ou ambígua vai
+para recuperação. Aceite já confirmado não exige nova classificação. Falha do
+modelo usa a regra textual anterior. O tutor continua responsável pela resposta.
