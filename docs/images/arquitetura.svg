@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="1030" viewBox="0 0 1260 1030" role="img" aria-labelledby="title desc">
+<title id="title">StudyForge — arquitetura e fluxo</title><desc id="desc">Orquestrador com LLM direciona para recuperação ou pesquisa explícita. Fontes temporárias retornam à recuperação. Tutor gera resposta. Persistência exige seleção do usuário.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#475569" stroke-width="1.5"/></marker></defs>
+<rect width="1260" height="1030" rx="16" fill="#f8fafc"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#0f172a">
+<text x="35" y="40" font-size="27" font-weight="700">StudyForge — arquitetura e interação</text>
+<text x="35" y="69" font-size="16" fill="#475569">FastAPI + LangGraph · um processo · Docker Compose · acesso localhost</text>
+<path d="M610 165 V190" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M610 265 V295" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M610 390 V465" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="390" y="435" font-size="14" fill="#334155">Pergunta comum / ambígua</text>
+<path d="M770 340 H865" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="785" y="319" font-size="14" fill="#334155">Pedido explícito</text>
+<path d="M1020 435 V465" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M865 510 H770" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="785" y="454" font-size="14" fill="#334155">Ranking combinado</text>
+<path d="M340 510 H450" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M610 555 V585" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M610 675 V705" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M610 775 V805" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M770 740 H865" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="777" y="698" font-size="14" fill="#334155">Há lacuna e não pesquisou?</text>
+<path d="M1175 750 H1210 V370 H1175" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1070" y="690" font-size="14" fill="#334155">Aceita: pesquisa</text>
+<path d="M1020 815 V850" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1040" y="837" font-size="14" fill="#334155">Recusa</text>
+<path d="M1020 555 V585" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M865 630 H825 V925 H770" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="780" y="900" font-size="14" fill="#334155">Selecionadas</text>
+<path d="M450 925 H180 V560" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M40 230 H20 V925 H450" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="35" y="750" font-size="14" fill="#334155">Upload Markdown</text>
+<rect x="450" y="100" width="320" height="65" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.5"/>
+<text x="610.0" y="127" text-anchor="middle" font-size="18" font-weight="700">Usuário</text>
+<text x="610.0" y="151" text-anchor="middle" font-size="15">Interface React / TypeScript</text>
+<rect x="450" y="190" width="320" height="75" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+<text x="610.0" y="217" text-anchor="middle" font-size="18" font-weight="700">API FastAPI</text>
+<text x="610.0" y="241" text-anchor="middle" font-size="15">Validação, sessão e limites</text>
+<rect x="450" y="295" width="320" height="95" rx="10" fill="#f3e8ff" stroke="#7e22ce" stroke-width="1.5"/>
+<text x="610.0" y="322" text-anchor="middle" font-size="18" font-weight="700">Orquestrador · Gemini LLM</text>
+<text x="610.0" y="346" text-anchor="middle" font-size="15">Classifica intenção da mensagem</text>
+<text x="610.0" y="368" text-anchor="middle" font-size="15">Código valida e encaminha</text>
+<rect x="865" y="335" width="310" height="100" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+<text x="1020.0" y="362" text-anchor="middle" font-size="18" font-weight="700">Pesquisador · ferramentas</text>
+<text x="1020.0" y="386" text-anchor="middle" font-size="15">Brave + HTTPcore + Trafilatura</text>
+<text x="1020.0" y="408" text-anchor="middle" font-size="15">Código: normalização e chunking</text>
+<rect x="865" y="465" width="310" height="90" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+<text x="1020.0" y="492" text-anchor="middle" font-size="18" font-weight="700">Fontes temporárias</text>
+<text x="1020.0" y="516" text-anchor="middle" font-size="15">Embeddings via API Gemini</text>
+<text x="1020.0" y="538" text-anchor="middle" font-size="15">Texto e vetores em memória</text>
+<rect x="40" y="465" width="300" height="95" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+<text x="190.0" y="492" text-anchor="middle" font-size="18" font-weight="700">PostgreSQL + pgvector</text>
+<text x="190.0" y="516" text-anchor="middle" font-size="15">Versões ativas e prontas</text>
+<text x="190.0" y="538" text-anchor="middle" font-size="15">Chunks + embeddings persistidos</text>
+<rect x="450" y="465" width="320" height="90" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+<text x="610.0" y="492" text-anchor="middle" font-size="18" font-weight="700">Recuperação · ferramenta</text>
+<text x="610.0" y="516" text-anchor="middle" font-size="15">Embedding da pergunta via Gemini</text>
+<text x="610.0" y="538" text-anchor="middle" font-size="15">Cosseno: banco + memória</text>
+<rect x="450" y="585" width="320" height="90" rx="10" fill="#f3e8ff" stroke="#7e22ce" stroke-width="1.5"/>
+<text x="610.0" y="612" text-anchor="middle" font-size="18" font-weight="700">Tutor · Gemini LLM</text>
+<text x="610.0" y="636" text-anchor="middle" font-size="15">Pergunta + trechos recuperados</text>
+<text x="610.0" y="658" text-anchor="middle" font-size="15">Resposta, citações e suficiência</text>
+<rect x="450" y="705" width="320" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+<text x="610.0" y="732" text-anchor="middle" font-size="18" font-weight="700">Validação de citações</text>
+<text x="610.0" y="756" text-anchor="middle" font-size="15">Resolve IDs para evidências</text>
+<rect x="450" y="805" width="320" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+<text x="610.0" y="832" text-anchor="middle" font-size="18" font-weight="700">Resposta ao usuário</text>
+<text x="610.0" y="856" text-anchor="middle" font-size="15">Origem e referências consultáveis</text>
+<rect x="865" y="710" width="310" height="105" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.5"/>
+<text x="1020.0" y="737" text-anchor="middle" font-size="18" font-weight="700">Oferecer pesquisa</text>
+<text x="1020.0" y="761" text-anchor="middle" font-size="15">Somente inicia após aceite</text>
+<text x="1020.0" y="783" text-anchor="middle" font-size="15">Confirmação controlada por código</text>
+<rect x="865" y="850" width="310" height="65" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+<text x="1020.0" y="877" text-anchor="middle" font-size="18" font-weight="700">Encerrar oferta</text>
+<text x="1020.0" y="901" text-anchor="middle" font-size="15">Sem executar pesquisa</text>
+<rect x="865" y="585" width="310" height="85" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.5"/>
+<text x="1020.0" y="612" text-anchor="middle" font-size="18" font-weight="700">Seleção de fontes</text>
+<text x="1020.0" y="636" text-anchor="middle" font-size="15">Usuário escolhe o que guardar</text>
+<rect x="450" y="895" width="320" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+<text x="610.0" y="922" text-anchor="middle" font-size="18" font-weight="700">Ingestão e publicação</text>
+<text x="610.0" y="946" text-anchor="middle" font-size="15">Verifica seleção das fontes web</text>
+<rect x="40" y="190" width="280" height="75" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.5"/>
+<text x="180.0" y="217" text-anchor="middle" font-size="18" font-weight="700">Upload local</text>
+<text x="180.0" y="241" text-anchor="middle" font-size="15">Somente Markdown</text>
+<text x="35" y="1000" font-size="15" fill="#475569">Roxo: LLM · Verde: ferramentas · Azul: código · Laranja: usuário · Cinza: dados</text></g></svg>

@@ -18,49 +18,9 @@ MVP para uso pessoal em **localhost**, construído como monólito modular em con
 
 O diagrama mostra o modo real: roxo indica LLM, verde indica ferramentas, azul indica código de controle e laranja indica decisões do usuário.
 
-```mermaid
-flowchart TB
-    User["Usuário"] --> UI["Interface React / TypeScript"]
-    subgraph App["FastAPI — um processo no Docker Compose"]
-        API["API: validação, sessão e limites"]
-        O["Orquestrador · Gemini LLM<br/>Interpreta pedido explícito de pesquisa"]
-        Route{"Roteamento controlado pelo código"}
-        subgraph Graph["Execução do grafo LangGraph"]
-            Research["Pesquisador · ferramentas<br/>Brave → coleta HTML → extração"]
-            Prep["Código: normalização e chunking<br/>API Gemini: embeddings dos trechos"]
-            RAM[("Fontes temporárias<br/>Memória da conversa")]
-            Retrieve["Recuperação · ferramenta<br/>Embedding da pergunta + ranking por cosseno"]
-            Tutor["Tutor · Gemini LLM<br/>Pergunta + evidências → resposta e suficiência"]
-        end
-        Cite["Código: resolve IDs de citação<br/>e monta a resposta do turno"]
-        Offer{"Evidência parcial ou insuficiente<br/>e ainda sem pesquisa neste turno?"}
-        Consent{"Usuário aceita pesquisar?"}
-        Stop["Encerra a oferta"]
-        Select["Usuário inspeciona e seleciona fontes"]
-        Ingest["Código: verifica seleção web<br/>e executa ingestão / publicação"]
-    end
-    UI --> API --> O --> Route
-    Route -->|"Pergunta comum ou ambígua"| Retrieve
-    Route -->|"Pedido explícito ou oferta aceita"| Research
-    Research --> Prep --> RAM --> Retrieve
-    DB[("PostgreSQL + pgvector<br/>Materiais, versões, chunks e embeddings")] --> Retrieve
-    Retrieve --> Tutor --> Cite
-    Cite -->|"Resposta e referências"| UI
-    Cite --> Offer
-    Offer -->|"Sim: oferece pesquisa"| Consent
-    Consent -->|"Sim: autorização explícita"| Route
-    Consent -->|"Não"| Stop
-    RAM --> Select --> Ingest --> DB
-    UI -->|"Upload Markdown"| Ingest
-    classDef llm fill:#f3e8ff,stroke:#7e22ce,color:#291342;
-    classDef tool fill:#dcfce7,stroke:#15803d,color:#133b24;
-    classDef code fill:#dbeafe,stroke:#2563eb,color:#122a50;
-    classDef human fill:#ffedd5,stroke:#ea580c,color:#522709;
-    class O,Tutor llm;
-    class Research,Retrieve tool;
-    class API,Route,Prep,Cite,Offer,Stop,Ingest code;
-    class User,Consent,Select human;
-```
+![Arquitetura do StudyForge: orquestração, pesquisa, recuperação, tutor e persistência](docs/images/arquitetura.svg)
+
+[Fonte editável do diagrama em Mermaid](docs/diagrams/arquitetura.mmd).
 
 **Dois papéis usam o LLM:** o orquestrador classifica intenção e o tutor gera a explicação. O pesquisador executa ferramentas. O código controla capacidades e orçamento; os agentes não autorizam gravação na biblioteca.
 
